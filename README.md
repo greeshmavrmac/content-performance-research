@@ -1,4 +1,3 @@
-
 # Identifying Content Performance Archetypes Using Unsupervised Machine Learning
 
 ## FlyRank ML Internship Capstone Research
@@ -29,24 +28,46 @@ The analysis used the `fact_content_daily_performance` dataset and a sample of 5
 
 Two content performance archetypes were identified:
 
-- Higher-Performance Content: 34,372 items (68.74%)
-- Lower-Performance Content: 15,628 items (31.26%)
+- **Higher-Performance Content**: 34,372 items (68.74%)
+- **Lower-Performance Content**: 15,628 items (31.26%)
 
 The higher-performing archetype showed stronger impressions, clicks, pageviews, organic sessions, scroll events, and search position.
+
+## Project Structure
+
+```
+├── README.md                          # This file
+├── website/                           # Website and publication files
+│   └── index.html                    # Research paper website
+├── images/                            # Research visualizations
+│   ├── figure1.png                   # Content archetype distribution
+│   ├── figure2.png                   # Performance comparison
+│   ├── figure3.png                   # Normalized performance comparison
+│   ├── figure4.png                   # PCA visualization
+│   └── figure5.png                   # Silhouette-score comparison
+├── notebooks/                         # Jupyter notebooks organized by week
+│   ├── week01/
+│   │   └── 01_research_question.ipynb
+│   ├── week02/
+│   │   ├── 02_ml_task_framing.ipynb
+│   │   └── 02_readable_model.ipynb
+│   ├── week03/
+│   │   └── 03_data_contract.ipynb
+│   ├── week04/
+│   │   └── 04_baseline_score.ipynb
+│   └── discovery/
+│       └── 01_first_look_and_discovery.ipynb
+├── submissions/                       # Project submissions
+│   └── paper_url.txt                 # Deployed paper URL
+└── work/                              # Work summaries and narratives
+    ├── employer_summary.md
+    ├── social_summary.md
+    └── tell_the_story.md
+```
 
 ## Project Website
 
 https://greeshmavrmac.github.io/content-performance-research/
-
-## Project Files
-
-- `index.html` — Research paper website
-- `figure1.png` — Content archetype distribution
-- `figure2.png` — Performance comparison
-- `figure3.png` — Normalized performance comparison
-- `figure4.png` — PCA visualization
-- `figure5.png` — Silhouette-score comparison
-- `submissions/paper_url.txt` — Deployed paper URL
 
 ## Technologies Used
 

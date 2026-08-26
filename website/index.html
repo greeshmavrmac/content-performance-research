@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Content Performance Archetypes Research</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            color: #222;
+            line-height: 1.7;
+        }
+
+        header {
+            background: #1f2937;
+            color: white;
+            padding: 50px 20px;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 32px;
+        }
+
+        header p {
+            margin-top: 15px;
+            color: #d1d5db;
+        }
+
+        main {
+            max-width: 1000px;
+            margin: 30px auto;
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+        }
+
+        h2 {
+            color: #1f2937;
+            margin-top: 45px;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 8px;
+        }
+
+        h3 {
+            color: #374151;
+            margin-top: 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            border: 1px solid #d1d5db;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background: #1f2937;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background: #f9fafb;
+        }
+
+        .highlight {
+            background: #eef4ff;
+            padding: 20px;
+            border-left: 5px solid #2563eb;
+            margin: 20px 0;
+        }
+
+        .result-box {
+            background: #f0fdf4;
+            padding: 20px;
+            border-left: 5px solid #16a34a;
+            margin: 20px 0;
+        }
+
+        .figure {
+            width: 100%;
+            max-width: 900px;
+            display: block;
+            margin: 20px auto 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+        }
+
+        .figure-caption {
+            text-align: center;
+            font-style: italic;
+            color: #4b5563;
+            margin-bottom: 35px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: #6b7280;
+        }
+
+        @media (max-width: 600px) {
+            main {
+                margin: 0;
+                padding: 20px;
+                border-radius: 0;
+            }
+
+            header h1 {
+                font-size: 25px;
+            }
+
+            table {
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>Identifying Content Performance Archetypes Using Unsupervised Machine Learning</h1>
+    <p>FlyRank ML Internship Capstone Research</p>
+</header>
+
+<main>
+
+    <h2>Abstract</h2>
+
+    <p>
+        This study investigates whether unsupervised machine learning can identify meaningful
+        patterns in content performance using search visibility, website traffic, and user
+        engagement signals.
+    </p>
+
+    <p>
+        Data from the FlyRank ML Internship Warehouse were analyzed using the
+        fact_content_daily_performance dataset. Daily observations were aggregated by
+        content identifier, producing a sample of 50,000 content items.
+    </p>
+
+    <p>
+        Fourteen numerical features representing search, traffic, acquisition, and engagement
+        performance were selected for analysis. After data cleaning and feature standardization,
+        K-Means clustering was evaluated using different numbers of clusters from two to six.
+    </p>
+
+    <div class="highlight">
+        <strong>Research Question:</strong><br>
+        Can unsupervised machine learning identify distinct content performance archetypes
+        from search visibility, traffic, and user engagement signals?
+    </div>
+
+    <p>
+        The final analysis identified two broad content archetypes:
+        Higher-Performance Content and Lower-Performance Content.
+    </p>
+
+    <p>
+        <strong>Keywords:</strong> Content performance, K-Means clustering, unsupervised
+        learning, search analytics, web analytics, content archetypes.
+    </p>
+
+
+    <h2>1. Introduction</h2>
+
+    <p>
+        Digital content generates multiple forms of performance data, including search
+        impressions, clicks, search position, pageviews, sessions, traffic sources, and
+        user engagement signals.
+    </p>
+
+    <p>
+        Analyzing these metrics individually can make it difficult to identify broader
+        patterns across large collections of content.
+    </p>
+
+    <p>
+        Unsupervised machine learning provides an approach to this problem. Instead of
+        manually defining what constitutes successful or unsuccessful content, clustering
+        algorithms can group content items according to similarities in their observed
+        performance characteristics.
+    </p>
+
+    <p>
+        The objective of this study is to investigate whether content items can be grouped
+        into meaningful performance archetypes using search, traffic, and engagement metrics.
+    </p>
+
+
+    <h2>2. Data and Feature Selection</h2>
+
+    <p>
+        This study used data from the FlyRank ML Internship Warehouse. The analysis focused
+        on the fact_content_daily_performance table, which contains daily observations of
+        content performance across search and analytics-related metrics.
+    </p>
+
+    <p>
+        A sample of 50,000 content items was created by aggregating observations using
+        content_hash_id.
+    </p>
+
+    <h3>Selected Features</h3>
+
+    <ol>
+        <li>Total impressions</li>
+        <li>Total clicks</li>
+        <li>Average search position</li>
+        <li>Total pageviews</li>
+        <li>Total sessions</li>
+        <li>Total users</li>
+        <li>Total engaged sessions</li>
+        <li>Total engagement time</li>
+        <li>Organic sessions</li>
+        <li>Direct sessions</li>
+        <li>Referral sessions</li>
+        <li>Social sessions</li>
+        <li>AI sessions</li>
+        <li>Total scroll events</li>
+    </ol>
+
+    <p>
+        The content_hash_id variable was used only to identify and aggregate individual
+        content items. It was not included as a clustering feature.
+    </p>
+
+
+    <h2>3. Methodology</h2>
+
+    <h3>3.1 Data Preparation</h3>
+
+    <p>
+        The dataset was aggregated by content_hash_id to create content-level observations.
+        The resulting dataset contained 50,000 content items and 14 numerical performance
+        features.
+    </p>
+
+    <p>
+        Missing values in avg_position were replaced using the median observed position.
+    </p>
+
+
+    <h3>3.2 Feature Standardization</h3>
+
+    <p>
+        The selected variables had substantially different scales. StandardScaler was used
+        to ensure that variables with larger numerical values did not dominate the
+        clustering process.
+    </p>
+
+
+    <h3>3.3 Cluster Selection</h3>
+
+    <p>
+        K-Means clustering was evaluated using values from K = 2 to K = 6. The silhouette
+        score was used to evaluate cluster separation.
+    </p>
+
+    <table>
+        <tr>
+            <th>Number of Clusters</th>
+            <th>Silhouette Score</th>
+        </tr>
+        <tr><td>2</td><td>0.4192</td></tr>
+        <tr><td>3</td><td>0.2345</td></tr>
+        <tr><td>4</td><td>0.2075</td></tr>
+        <tr><td>5</td><td>0.1883</td></tr>
+        <tr><td>6</td><td>0.1970</td></tr>
+    </table>
+
+    <div class="result-box">
+        <strong>Result:</strong> K = 2 produced the highest silhouette score and was
+        selected for the cluster-count experiment.
+    </div>
+
+
+    <h3>3.4 Preprocessing Comparison</h3>
+
+    <p>Two preprocessing approaches were compared:</p>
+
+    <ul>
+        <li>Baseline: Feature standardization</li>
+        <li>Alternative: Log transformation followed by standardization</li>
+    </ul>
+
+    <table>
+        <tr>
+            <th>Approach</th>
+            <th>Silhouette Score</th>
+        </tr>
+        <tr>
+            <td>Standardization Only</td>
+            <td>0.8157</td>
+        </tr>
+        <tr>
+            <td>Log Transformation + Standardization</td>
+            <td>0.3912</td>
+        </tr>
+    </table>
+
+    <p>
+        The standardization-only approach produced the stronger result in the evaluation
+        procedure and was retained for the final analysis.
+    </p>
+
+
+    <h2>4. Results</h2>
+
+    <h3>4.1 Final Content Archetypes</h3>
+
+    <table>
+        <tr>
+            <th>Content Archetype</th>
+            <th>Content Items</th>
+            <th>Percentage</th>
+        </tr>
+        <tr>
+            <td>Higher-Performance Content</td>
+            <td>34,372</td>
+            <td>68.74%</td>
+        </tr>
+        <tr>
+            <td>Lower-Performance Content</td>
+            <td>15,628</td>
+            <td>31.26%</td>
+        </tr>
+    </table>
+
+
+    <h3>4.2 Performance Comparison</h3>
+
+    <table>
+        <tr>
+            <th>Metric</th>
+            <th>Higher-Performance</th>
+            <th>Lower-Performance</th>
+        </tr>
+        <tr><td>Total impressions</td><td>17,307.27</td><td>2,751.18</td></tr>
+        <tr><td>Total clicks</td><td>64.77</td><td>2.92</td></tr>
+        <tr><td>Average search position</td><td>10.39</td><td>41.13</td></tr>
+        <tr><td>Total pageviews</td><td>65.90</td><td>11.53</td></tr>
+        <tr><td>Organic sessions</td><td>32.76</td><td>1.23</td></tr>
+        <tr><td>Total scroll events</td><td>6.29</td><td>1.10</td></tr>
+    </table>
+
+
+    <h3>4.3 Relative Performance Differences</h3>
+
+    <table>
+        <tr>
+            <th>Metric</th>
+            <th>Relative Difference</th>
+        </tr>
+        <tr><td>Impressions</td><td>6.29× higher</td></tr>
+        <tr><td>Clicks</td><td>22.18× higher</td></tr>
+        <tr><td>Pageviews</td><td>5.72× higher</td></tr>
+        <tr><td>Organic sessions</td><td>26.63× higher</td></tr>
+        <tr><td>Scroll events</td><td>5.72× higher</td></tr>
+    </table>
+
+
+    <h2>5. Discussion</h2>
+
+    <p>
+        The results demonstrate that the selected performance signals contain sufficient
+        structure to separate the analyzed content into two broad archetypes.
+    </p>
+
+    <p>
+        The Higher-Performance Content group consistently showed stronger observed
+        performance across search visibility, website traffic, and engagement metrics.
+    </p>
+
+    <h3>Search Visibility and Traffic</h3>
+
+    <p>
+        The higher-performing group had substantially more impressions and clicks,
+        together with far more organic sessions.
+    </p>
+
+    <h3>Search Position</h3>
+
+    <p>
+        The higher-performing group had an average search position of 10.39 compared
+        with 41.13 for the lower-performing group. Because lower position values indicate
+        stronger ranking positions, this group demonstrated better observed search visibility.
+    </p>
+
+    <div class="highlight">
+        <strong>Important:</strong> These findings represent observed associations.
+        The clustering analysis does not establish causal relationships.
+    </div>
+
+
+    <h2>6. Limitations</h2>
+
+    <ol>
+        <li>The analysis used a sample of 50,000 content items rather than the entire warehouse.</li>
+        <li>Results depend on the selected features and preprocessing methods.</li>
+        <li>Different clustering algorithms could produce different group structures.</li>
+        <li>Two clusters do not imply that only two content-performance patterns exist.</li>
+        <li>The analysis is observational and cannot establish causality.</li>
+    </ol>
+
+
+    <h2>7. Conclusion</h2>
+
+    <p>
+        This study investigated whether unsupervised machine learning could identify
+        meaningful content performance archetypes using search visibility, traffic,
+        and user engagement signals.
+    </p>
+
+    <p>
+        A sample of 50,000 aggregated content items was analyzed using 14 numerical
+        performance features. Cluster configurations from two to six were evaluated
+        using silhouette scores.
+    </p>
+
+    <div class="result-box">
+        <strong>Final Result:</strong>
+        <ul>
+            <li>Higher-Performance Content: 34,372 items (68.74%)</li>
+            <li>Lower-Performance Content: 15,628 items (31.26%)</li>
+        </ul>
+    </div>
+
+    <p>
+        Overall, the results show that unsupervised clustering can identify broad and
+        interpretable patterns in observed content performance. These archetypes may
+        be useful for content analysis and prioritization, but they should not be
+        interpreted as causal evidence.
+    </p>
+
+
+    <h2>8. Ranked Recommendations</h2>
+
+    <ol>
+        <li>
+            <strong>Prioritize content with weak search visibility.</strong>
+            Investigate content with low impressions and clicks.
+        </li>
+        <li>
+            <strong>Review content with weak organic traffic.</strong>
+            Investigate search relevance and discoverability.
+        </li>
+        <li>
+            <strong>Examine low-engagement content.</strong>
+            Review structure, relevance, readability, and user experience.
+        </li>
+        <li>
+            <strong>Use higher-performing content as a comparison group.</strong>
+            Compare successful and lower-performing content characteristics.
+        </li>
+        <li>
+            <strong>Repeat the analysis on newer data.</strong>
+            Content performance can change over time.
+        </li>
+    </ol>
+
+
+    <h2>9. Figures</h2>
+
+    <h3>Figure 1. Distribution of Content Archetypes</h3>
+
+    <img src="../images/figure1.png"
+         alt="Distribution of Content Archetypes"
+         class="figure">
+
+    <p class="figure-caption">
+        Figure 1 shows the distribution of the 50,000 content items across the two
+        identified content archetypes. Cluster 0 contains the larger group of content
+        items, while Cluster 1 contains the smaller group.
+    </p>
+
+
+    <h3>Figure 2. Performance Comparison Between Content Archetypes</h3>
+
+    <img src="../images/figure2.png"
+         alt="Performance Comparison Between Content Archetypes"
+         class="figure">
+
+    <p class="figure-caption">
+        Figure 2 compares the average performance metrics of the two content archetypes.
+        Higher-Performance Content shows substantially stronger results across
+        impressions, clicks, pageviews, organic sessions, and scroll events.
+    </p>
+
+
+    <h3>Figure 3. Normalized Performance Comparison</h3>
+
+    <img src="../images/figure3.png"
+         alt="Normalized Performance Comparison"
+         class="figure">
+
+    <p class="figure-caption">
+        Figure 3 presents the performance metrics on a normalized relative scale.
+        This makes it easier to compare differences between the two archetypes across
+        metrics that originally had very different numerical ranges.
+    </p>
+
+
+    <h3>Figure 4. PCA Visualization of Content Archetypes</h3>
+
+    <img src="../images/figure4.png"
+         alt="PCA Visualization of Content Archetypes"
+         class="figure">
+
+    <p class="figure-caption">
+        Figure 4 visualizes the content items in two dimensions using Principal Component
+        Analysis (PCA). The visualization shows the separation and distribution of the
+        two clusters based on their combined performance characteristics.
+    </p>
+
+
+    <h3>Figure 5. Cluster Selection Using Silhouette Scores</h3>
+
+    <img src="../images/figure5.png"
+         alt="Cluster Selection Using Silhouette Scores"
+         class="figure">
+
+    <p class="figure-caption">
+        Figure 5 shows the silhouette scores obtained for different numbers of clusters
+        from K = 2 to K = 6. The highest silhouette score was obtained when K = 2,
+        supporting the selection of two clusters for the final analysis.
+    </p>
+
+
+    <h2>10. References</h2>
+
+    <ol>
+        <li>
+            MacQueen, J. (1967). Some methods for classification and analysis of
+            multivariate observations.
+        </li>
+        <li>
+            Rousseeuw, P. J. (1987). Silhouettes: A graphical aid to the interpretation
+            and validation of cluster analysis.
+        </li>
+        <li>
+            Pedregosa, F., et al. (2011). Scikit-learn: Machine Learning in Python.
+        </li>
+        <li>FlyRank ML Internship Warehouse Dataset.</li>
+        <li>FlyRank ML Internship project documentation and dataset access resources.</li>
+    </ol>
+
+
+    <h2>11. Acknowledgments and Data Source</h2>
+
+    <p>
+        This research was conducted using the FlyRank ML Internship Warehouse dataset.
+        The analysis used aggregated, pseudonymized content-performance data.
+        Content identifiers were used for aggregation and were not used as clustering features.
+    </p>
+
+    <p>
+        The analysis was implemented using Python and data-science libraries including
+        DuckDB, Pandas, NumPy, and Scikit-learn.
+    </p>
+
+</main>
+
+<footer>
+    <p>FlyRank ML Internship Capstone Research Project</p>
+</footer>
+
+</body>
+</html>
