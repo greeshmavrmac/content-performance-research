@@ -1,0 +1,1039 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": []
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "source": [
+        "\n",
+        "## My Lane as an ML Task\n",
+        "\n",
+        "Task Type: Scoring (Regression)\n",
+        "\n",
+        "My chosen lane is Content Refresh Prioritization.\n",
+        "\n",
+        "The objective is to predict a refresh priority score for each content page. The score helps identify which pages should be updated first based on historical content and engagement signals."
+      ],
+      "metadata": {
+        "id": "R5LJlaJt_HO4"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## Target or Proxy\n",
+        "\n",
+        "Target Column:\n",
+        "refresh_priority_score\n",
+        "\n",
+        "This target represents the priority of refreshing a content page. Pages with higher scores should be refreshed before pages with lower scores."
+      ],
+      "metadata": {
+        "id": "zUrwG4wD_Kkn"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## Success Metric\n",
+        "\n",
+        "I would evaluate this model using RMSE (Root Mean Squared Error).\n",
+        "\n",
+        "A lower RMSE indicates that the predicted refresh priority scores are close to the actual scores."
+      ],
+      "metadata": {
+        "id": "KDZp6iW__OKf"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import pandas as pd"
+      ],
+      "metadata": {
+        "id": "28iF5LI0-hE3"
+      },
+      "execution_count": 2,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import pandas as pd\n",
+        "import numpy as np\n",
+        "\n",
+        "data = {\n",
+        "    'page_id': [f'page_{i:03d}' for i in range(1, 11)],\n",
+        "    'last_refresh_date': pd.to_datetime([\n",
+        "        '2023-01-15','2023-02-20','2022-11-01','2023-03-10','2023-01-05',\n",
+        "        '2022-12-12','2023-04-01','2023-01-25','2022-10-10','2023-02-05'\n",
+        "    ]),\n",
+        "    'page_views_last_30_days': np.random.randint(100,5000,10),\n",
+        "    'engagement_score': np.round(np.random.uniform(0.1,0.9,10),2),\n",
+        "    'content_type': [\n",
+        "        'blog','product','guide','blog','news',\n",
+        "        'guide','blog','product','news','blog'\n",
+        "    ],\n",
+        "    'refresh_priority_score': np.round(np.random.uniform(0.5,9.5,10),1)\n",
+        "}\n",
+        "\n",
+        "df = pd.DataFrame(data)\n",
+        "\n",
+        "df.head()"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 206
+        },
+        "id": "sEudEOyK_Vyu",
+        "outputId": "2bf0aca4-8eda-49fd-82fb-dc7229f83405"
+      },
+      "execution_count": 5,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "    page_id last_refresh_date  page_views_last_30_days  engagement_score  \\\n",
+              "0  page_001        2023-01-15                     1360              0.74   \n",
+              "1  page_002        2023-02-20                     2504              0.17   \n",
+              "2  page_003        2022-11-01                      297              0.87   \n",
+              "3  page_004        2023-03-10                     1464              0.25   \n",
+              "4  page_005        2023-01-05                     1181              0.38   \n",
+              "\n",
+              "  content_type  refresh_priority_score  \n",
+              "0         blog                     6.7  \n",
+              "1      product                     3.3  \n",
+              "2        guide                     4.8  \n",
+              "3         blog                     3.7  \n",
+              "4         news                     1.6  "
+            ],
+            "text/html": [
+              "\n",
+              "  <div id=\"df-d49ccc7d-b2a6-479b-87b6-69813958e4c6\" class=\"colab-df-container\">\n",
+              "    <div>\n",
+              "<style scoped>\n",
+              "    .dataframe tbody tr th:only-of-type {\n",
+              "        vertical-align: middle;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe tbody tr th {\n",
+              "        vertical-align: top;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe thead th {\n",
+              "        text-align: right;\n",
+              "    }\n",
+              "</style>\n",
+              "<table border=\"1\" class=\"dataframe\">\n",
+              "  <thead>\n",
+              "    <tr style=\"text-align: right;\">\n",
+              "      <th></th>\n",
+              "      <th>page_id</th>\n",
+              "      <th>last_refresh_date</th>\n",
+              "      <th>page_views_last_30_days</th>\n",
+              "      <th>engagement_score</th>\n",
+              "      <th>content_type</th>\n",
+              "      <th>refresh_priority_score</th>\n",
+              "    </tr>\n",
+              "  </thead>\n",
+              "  <tbody>\n",
+              "    <tr>\n",
+              "      <th>0</th>\n",
+              "      <td>page_001</td>\n",
+              "      <td>2023-01-15</td>\n",
+              "      <td>1360</td>\n",
+              "      <td>0.74</td>\n",
+              "      <td>blog</td>\n",
+              "      <td>6.7</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>1</th>\n",
+              "      <td>page_002</td>\n",
+              "      <td>2023-02-20</td>\n",
+              "      <td>2504</td>\n",
+              "      <td>0.17</td>\n",
+              "      <td>product</td>\n",
+              "      <td>3.3</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>2</th>\n",
+              "      <td>page_003</td>\n",
+              "      <td>2022-11-01</td>\n",
+              "      <td>297</td>\n",
+              "      <td>0.87</td>\n",
+              "      <td>guide</td>\n",
+              "      <td>4.8</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>3</th>\n",
+              "      <td>page_004</td>\n",
+              "      <td>2023-03-10</td>\n",
+              "      <td>1464</td>\n",
+              "      <td>0.25</td>\n",
+              "      <td>blog</td>\n",
+              "      <td>3.7</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>4</th>\n",
+              "      <td>page_005</td>\n",
+              "      <td>2023-01-05</td>\n",
+              "      <td>1181</td>\n",
+              "      <td>0.38</td>\n",
+              "      <td>news</td>\n",
+              "      <td>1.6</td>\n",
+              "    </tr>\n",
+              "  </tbody>\n",
+              "</table>\n",
+              "</div>\n",
+              "    <div class=\"colab-df-buttons\">\n",
+              "\n",
+              "  <div class=\"colab-df-container\">\n",
+              "    <button class=\"colab-df-convert\" onclick=\"convertToInteractive('df-d49ccc7d-b2a6-479b-87b6-69813958e4c6')\"\n",
+              "            title=\"Convert this dataframe to an interactive table.\"\n",
+              "            style=\"display:none;\">\n",
+              "\n",
+              "  <svg xmlns=\"http://www.w3.org/2000/svg\" height=\"24px\" viewBox=\"0 -960 960 960\">\n",
+              "    <path d=\"M120-120v-720h720v720H120Zm60-500h600v-160H180v160Zm220 220h160v-160H400v160Zm0 220h160v-160H400v160ZM180-400h160v-160H180v160Zm440 0h160v-160H620v160ZM180-180h160v-160H180v160Zm440 0h160v-160H620v160Z\"/>\n",
+              "  </svg>\n",
+              "    </button>\n",
+              "\n",
+              "  <style>\n",
+              "    .colab-df-container {\n",
+              "      display:flex;\n",
+              "      gap: 12px;\n",
+              "    }\n",
+              "\n",
+              "    .colab-df-convert {\n",
+              "      background-color: #E8F0FE;\n",
+              "      border: none;\n",
+              "      border-radius: 50%;\n",
+              "      cursor: pointer;\n",
+              "      display: none;\n",
+              "      fill: #1967D2;\n",
+              "      height: 32px;\n",
+              "      padding: 0 0 0 0;\n",
+              "      width: 32px;\n",
+              "    }\n",
+              "\n",
+              "    .colab-df-convert:hover {\n",
+              "      background-color: #E2EBFA;\n",
+              "      box-shadow: 0px 1px 2px rgba(60, 64, 67, 0.3), 0px 1px 3px 1px rgba(60, 64, 67, 0.15);\n",
+              "      fill: #174EA6;\n",
+              "    }\n",
+              "\n",
+              "    .colab-df-buttons div {\n",
+              "      margin-bottom: 4px;\n",
+              "    }\n",
+              "\n",
+              "    [theme=dark] .colab-df-convert {\n",
+              "      background-color: #3B4455;\n",
+              "      fill: #D2E3FC;\n",
+              "    }\n",
+              "\n",
+              "    [theme=dark] .colab-df-convert:hover {\n",
+              "      background-color: #434B5C;\n",
+              "      box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);\n",
+              "      filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.3));\n",
+              "      fill: #FFFFFF;\n",
+              "    }\n",
+              "  </style>\n",
+              "\n",
+              "    <script>\n",
+              "      const buttonEl =\n",
+              "        document.querySelector('#df-d49ccc7d-b2a6-479b-87b6-69813958e4c6 button.colab-df-convert');\n",
+              "      buttonEl.style.display =\n",
+              "        google.colab.kernel.accessAllowed ? 'block' : 'none';\n",
+              "\n",
+              "      async function convertToInteractive(key) {\n",
+              "        const element = document.querySelector('#df-d49ccc7d-b2a6-479b-87b6-69813958e4c6');\n",
+              "        const dataTable =\n",
+              "          await google.colab.kernel.invokeFunction('convertToInteractive',\n",
+              "                                                    [key], {});\n",
+              "        if (!dataTable) return;\n",
+              "\n",
+              "        const docLinkHtml = 'Like what you see? Visit the ' +\n",
+              "          '<a target=\"_blank\" href=https://colab.research.google.com/notebooks/data_table.ipynb>data table notebook</a>'\n",
+              "          + ' to learn more about interactive tables.';\n",
+              "        element.innerHTML = '';\n",
+              "        dataTable['output_type'] = 'display_data';\n",
+              "        await google.colab.output.renderOutput(dataTable, element);\n",
+              "        const docLink = document.createElement('div');\n",
+              "        docLink.innerHTML = docLinkHtml;\n",
+              "        element.appendChild(docLink);\n",
+              "      }\n",
+              "    </script>\n",
+              "  </div>\n",
+              "\n",
+              "\n",
+              "    </div>\n",
+              "  </div>\n"
+            ],
+            "application/vnd.google.colaboratory.intrinsic+json": {
+              "type": "dataframe",
+              "variable_name": "df",
+              "summary": "{\n  \"name\": \"df\",\n  \"rows\": 10,\n  \"fields\": [\n    {\n      \"column\": \"page_id\",\n      \"properties\": {\n        \"dtype\": \"string\",\n        \"num_unique_values\": 10,\n        \"samples\": [\n          \"page_009\",\n          \"page_002\",\n          \"page_006\"\n        ],\n        \"semantic_type\": \"\",\n        \"description\": \"\"\n      }\n    },\n    {\n      \"column\": \"last_refresh_date\",\n      \"properties\": {\n        \"dtype\": \"date\",\n        \"min\": \"2022-10-10 00:00:00\",\n        \"max\": \"2023-04-01 00:00:00\",\n        \"num_unique_values\": 10,\n        \"samples\": [\n          \"2022-10-10 00:00:00\",\n          \"2023-02-20 00:00:00\",\n          \"2022-12-12 00:00:00\"\n        ],\n        \"semantic_type\": \"\",\n        \"description\": \"\"\n      }\n    },\n    {\n      \"column\": \"page_views_last_30_days\",\n      \"properties\": {\n        \"dtype\": \"number\",\n        \"std\": 1381,\n        \"min\": 297,\n        \"max\": 4576,\n        \"num_unique_values\": 10,\n        \"samples\": [\n          1203,\n          2504,\n          3073\n        ],\n        \"semantic_type\": \"\",\n        \"description\": \"\"\n      }\n    },\n    {\n      \"column\": \"engagement_score\",\n      \"properties\": {\n        \"dtype\": \"number\",\n        \"std\": 0.2253885533916929,\n        \"min\": 0.17,\n        \"max\": 0.87,\n        \"num_unique_values\": 9,\n        \"samples\": [\n          0.39,\n          0.17,\n          0.27\n        ],\n        \"semantic_type\": \"\",\n        \"description\": \"\"\n      }\n    },\n    {\n      \"column\": \"content_type\",\n      \"properties\": {\n        \"dtype\": \"category\",\n        \"num_unique_values\": 4,\n        \"samples\": [\n          \"product\",\n          \"news\",\n          \"blog\"\n        ],\n        \"semantic_type\": \"\",\n        \"description\": \"\"\n      }\n    },\n    {\n      \"column\": \"refresh_priority_score\",\n      \"properties\": {\n        \"dtype\": \"number\",\n        \"std\": 2.1407163909931337,\n        \"min\": 1.6,\n        \"max\": 7.7,\n        \"num_unique_values\": 10,\n        \"samples\": [\n          1.9,\n          3.3,\n          7.0\n        ],\n        \"semantic_type\": \"\",\n        \"description\": \"\"\n      }\n    }\n  ]\n}"
+            }
+          },
+          "metadata": {},
+          "execution_count": 5
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## Unit of Analysis\n",
+        "\n",
+        "One row in the dataframe represents one content page.\n",
+        "\n",
+        "Each row contains information about a single webpage, including page views, engagement score, content type, and refresh priority score."
+      ],
+      "metadata": {
+        "id": "fSdCnlVu_YM-"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "df.head()"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 206
+        },
+        "id": "nFEfwl6g-Oo_",
+        "outputId": "0e4b70f4-cc26-4e57-a20e-f9cc2d76cf82"
+      },
+      "execution_count": 6,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "    page_id last_refresh_date  page_views_last_30_days  engagement_score  \\\n",
+              "0  page_001        2023-01-15                     1360              0.74   \n",
+              "1  page_002        2023-02-20                     2504              0.17   \n",
+              "2  page_003        2022-11-01                      297              0.87   \n",
+              "3  page_004        2023-03-10                     1464              0.25   \n",
+              "4  page_005        2023-01-05                     1181              0.38   \n",
+              "\n",
+              "  content_type  refresh_priority_score  \n",
+              "0         blog                     6.7  \n",
+              "1      product                     3.3  \n",
+              "2        guide                     4.8  \n",
+              "3         blog                     3.7  \n",
+              "4         news                     1.6  "
+            ],
+            "text/html": [
+              "\n",
+              "  <div id=\"df-12b7bea5-0a09-45de-8a54-d9fee971cff4\" class=\"colab-df-container\">\n",
+              "    <div>\n",
+              "<style scoped>\n",
+              "    .dataframe tbody tr th:only-of-type {\n",
+              "        vertical-align: middle;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe tbody tr th {\n",
+              "        vertical-align: top;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe thead th {\n",
+              "        text-align: right;\n",
+              "    }\n",
+              "</style>\n",
+              "<table border=\"1\" class=\"dataframe\">\n",
+              "  <thead>\n",
+              "    <tr style=\"text-align: right;\">\n",
+              "      <th></th>\n",
+              "      <th>page_id</th>\n",
+              "      <th>last_refresh_date</th>\n",
+              "      <th>page_views_last_30_days</th>\n",
+              "      <th>engagement_score</th>\n",
+              "      <th>content_type</th>\n",
+              "      <th>refresh_priority_score</th>\n",
+              "    </tr>\n",
+              "  </thead>\n",
+              "  <tbody>\n",
+              "    <tr>\n",
+              "      <th>0</th>\n",
+              "      <td>page_001</td>\n",
+              "      <td>2023-01-15</td>\n",
+              "      <td>1360</td>\n",
+              "      <td>0.74</td>\n",
+              "      <td>blog</td>\n",
+              "      <td>6.7</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>1</th>\n",
+              "      <td>page_002</td>\n",
+              "      <td>2023-02-20</td>\n",
+              "      <td>2504</td>\n",
+              "      <td>0.17</td>\n",
+              "      <td>product</td>\n",
+              "      <td>3.3</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>2</th>\n",
+              "      <td>page_003</td>\n",
+              "      <td>2022-11-01</td>\n",
+              "      <td>297</td>\n",
+              "      <td>0.87</td>\n",
+              "      <td>guide</td>\n",
+              "      <td>4.8</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>3</th>\n",
+              "      <td>page_004</td>\n",
+              "      <td>2023-03-10</td>\n",
+              "      <td>1464</td>\n",
+              "      <td>0.25</td>\n",
+              "      <td>blog</td>\n",
+              "      <td>3.7</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>4</th>\n",
+              "      <td>page_005</td>\n",
+              "      <td>2023-01-05</td>\n",
+              "      <td>1181</td>\n",
+              "      <td>0.38</td>\n",
+              "      <td>news</td>\n",
+              "      <td>1.6</td>\n",
+              "    </tr>\n",
+              "  </tbody>\n",
+              "</table>\n",
+              "</div>\n",
+              "    <div class=\"colab-df-buttons\">\n",
+              "\n",
+              "  <div class=\"colab-df-container\">\n",
+              "    <button class=\"colab-df-convert\" onclick=\"convertToInteractive('df-12b7bea5-0a09-45de-8a54-d9fee971cff4')\"\n",
+              "            title=\"Convert this dataframe to an interactive table.\"\n",
+              "            style=\"display:none;\">\n",
+              "\n",
+              "  <svg xmlns=\"http://www.w3.org/2000/svg\" height=\"24px\" viewBox=\"0 -960 960 960\">\n",
+              "    <path d=\"M120-120v-720h720v720H120Zm60-500h600v-160H180v160Zm220 220h160v-160H400v160Zm0 220h160v-160H400v160ZM180-400h160v-160H180v160Zm440 0h160v-160H620v160ZM180-180h160v-160H180v160Zm440 0h160v-160H620v160Z\"/>\n",
+              "  </svg>\n",
+              "    </button>\n",
+              "\n",
+              "  <style>\n",
+              "    .colab-df-container {\n",
+              "      display:flex;\n",
+              "      gap: 12px;\n",
+              "    }\n",
+              "\n",
+              "    .colab-df-convert {\n",
+              "      background-color: #E8F0FE;\n",
+              "      border: none;\n",
+              "      border-radius: 50%;\n",
+              "      cursor: pointer;\n",
+              "      display: none;\n",
+              "      fill: #1967D2;\n",
+              "      height: 32px;\n",
+              "      padding: 0 0 0 0;\n",
+              "      width: 32px;\n",
+              "    }\n",
+              "\n",
+              "    .colab-df-convert:hover {\n",
+              "      background-color: #E2EBFA;\n",
+              "      box-shadow: 0px 1px 2px rgba(60, 64, 67, 0.3), 0px 1px 3px 1px rgba(60, 64, 67, 0.15);\n",
+              "      fill: #174EA6;\n",
+              "    }\n",
+              "\n",
+              "    .colab-df-buttons div {\n",
+              "      margin-bottom: 4px;\n",
+              "    }\n",
+              "\n",
+              "    [theme=dark] .colab-df-convert {\n",
+              "      background-color: #3B4455;\n",
+              "      fill: #D2E3FC;\n",
+              "    }\n",
+              "\n",
+              "    [theme=dark] .colab-df-convert:hover {\n",
+              "      background-color: #434B5C;\n",
+              "      box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);\n",
+              "      filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.3));\n",
+              "      fill: #FFFFFF;\n",
+              "    }\n",
+              "  </style>\n",
+              "\n",
+              "    <script>\n",
+              "      const buttonEl =\n",
+              "        document.querySelector('#df-12b7bea5-0a09-45de-8a54-d9fee971cff4 button.colab-df-convert');\n",
+              "      buttonEl.style.display =\n",
+              "        google.colab.kernel.accessAllowed ? 'block' : 'none';\n",
+              "\n",
+              "      async function convertToInteractive(key) {\n",
+              "        const element = document.querySelector('#df-12b7bea5-0a09-45de-8a54-d9fee971cff4');\n",
+              "        const dataTable =\n",
+              "          await google.colab.kernel.invokeFunction('convertToInteractive',\n",
+              "                                                    [key], {});\n",
+              "        if (!dataTable) return;\n",
+              "\n",
+              "        const docLinkHtml = 'Like what you see? Visit the ' +\n",
+              "          '<a target=\"_blank\" href=https://colab.research.google.com/notebooks/data_table.ipynb>data table notebook</a>'\n",
+              "          + ' to learn more about interactive tables.';\n",
+              "        element.innerHTML = '';\n",
+              "        dataTable['output_type'] = 'display_data';\n",
+              "        await google.colab.output.renderOutput(dataTable, element);\n",
+              "        const docLink = document.createElement('div');\n",
+              "        docLink.innerHTML = docLinkHtml;\n",
+              "        element.appendChild(docLink);\n",
+              "      }\n",
+              "    </script>\n",
+              "  </div>\n",
+              "\n",
+              "\n",
+              "    </div>\n",
+              "  </div>\n"
+            ],
+            "application/vnd.google.colaboratory.intrinsic+json": {
+              "type": "dataframe",
+              "variable_name": "df",
+              "summary": "{\n  \"name\": \"df\",\n  \"rows\": 10,\n  \"fields\": [\n    {\n      \"column\": \"page_id\",\n      \"properties\": {\n        \"dtype\": \"string\",\n        \"num_unique_values\": 10,\n        \"samples\": [\n          \"page_009\",\n          \"page_002\",\n          \"page_006\"\n        ],\n        \"semantic_type\": \"\",\n        \"description\": \"\"\n      }\n    },\n    {\n      \"column\": \"last_refresh_date\",\n      \"properties\": {\n        \"dtype\": \"date\",\n        \"min\": \"2022-10-10 00:00:00\",\n        \"max\": \"2023-04-01 00:00:00\",\n        \"num_unique_values\": 10,\n        \"samples\": [\n          \"2022-10-10 00:00:00\",\n          \"2023-02-20 00:00:00\",\n          \"2022-12-12 00:00:00\"\n        ],\n        \"semantic_type\": \"\",\n        \"description\": \"\"\n      }\n    },\n    {\n      \"column\": \"page_views_last_30_days\",\n      \"properties\": {\n        \"dtype\": \"number\",\n        \"std\": 1381,\n        \"min\": 297,\n        \"max\": 4576,\n        \"num_unique_values\": 10,\n        \"samples\": [\n          1203,\n          2504,\n          3073\n        ],\n        \"semantic_type\": \"\",\n        \"description\": \"\"\n      }\n    },\n    {\n      \"column\": \"engagement_score\",\n      \"properties\": {\n        \"dtype\": \"number\",\n        \"std\": 0.2253885533916929,\n        \"min\": 0.17,\n        \"max\": 0.87,\n        \"num_unique_values\": 9,\n        \"samples\": [\n          0.39,\n          0.17,\n          0.27\n        ],\n        \"semantic_type\": \"\",\n        \"description\": \"\"\n      }\n    },\n    {\n      \"column\": \"content_type\",\n      \"properties\": {\n        \"dtype\": \"category\",\n        \"num_unique_values\": 4,\n        \"samples\": [\n          \"product\",\n          \"news\",\n          \"blog\"\n        ],\n        \"semantic_type\": \"\",\n        \"description\": \"\"\n      }\n    },\n    {\n      \"column\": \"refresh_priority_score\",\n      \"properties\": {\n        \"dtype\": \"number\",\n        \"std\": 2.1407163909931337,\n        \"min\": 1.6,\n        \"max\": 7.7,\n        \"num_unique_values\": 10,\n        \"samples\": [\n          1.9,\n          3.3,\n          7.0\n        ],\n        \"semantic_type\": \"\",\n        \"description\": \"\"\n      }\n    }\n  ]\n}"
+            }
+          },
+          "metadata": {},
+          "execution_count": 6
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "df.info()"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "AbaT_FJP_aiv",
+        "outputId": "73e4f4c5-f8f1-41db-c02e-a92f51d14593"
+      },
+      "execution_count": 7,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "<class 'pandas.core.frame.DataFrame'>\n",
+            "RangeIndex: 10 entries, 0 to 9\n",
+            "Data columns (total 6 columns):\n",
+            " #   Column                   Non-Null Count  Dtype         \n",
+            "---  ------                   --------------  -----         \n",
+            " 0   page_id                  10 non-null     object        \n",
+            " 1   last_refresh_date        10 non-null     datetime64[ns]\n",
+            " 2   page_views_last_30_days  10 non-null     int64         \n",
+            " 3   engagement_score         10 non-null     float64       \n",
+            " 4   content_type             10 non-null     object        \n",
+            " 5   refresh_priority_score   10 non-null     float64       \n",
+            "dtypes: datetime64[ns](1), float64(2), int64(1), object(2)\n",
+            "memory usage: 612.0+ bytes\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "df.columns"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "I4EUQWn2_cfh",
+        "outputId": "1c4a160a-05d1-48cc-c27a-8e2c4c483bf9"
+      },
+      "execution_count": 8,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "Index(['page_id', 'last_refresh_date', 'page_views_last_30_days',\n",
+              "       'engagement_score', 'content_type', 'refresh_priority_score'],\n",
+              "      dtype='object')"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 8
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "df.shape"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "niZoW0sg_6XX",
+        "outputId": "32abee17-25b0-43ff-bf08-1e14185ae1f2"
+      },
+      "execution_count": 10,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "(10, 6)"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 10
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "df.isnull().sum()"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 272
+        },
+        "id": "QXY21EID_8cP",
+        "outputId": "8c9d4e4d-87a5-459c-e697-6cbef9a45bf6"
+      },
+      "execution_count": 11,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "page_id                    0\n",
+              "last_refresh_date          0\n",
+              "page_views_last_30_days    0\n",
+              "engagement_score           0\n",
+              "content_type               0\n",
+              "refresh_priority_score     0\n",
+              "dtype: int64"
+            ],
+            "text/html": [
+              "<div>\n",
+              "<style scoped>\n",
+              "    .dataframe tbody tr th:only-of-type {\n",
+              "        vertical-align: middle;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe tbody tr th {\n",
+              "        vertical-align: top;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe thead th {\n",
+              "        text-align: right;\n",
+              "    }\n",
+              "</style>\n",
+              "<table border=\"1\" class=\"dataframe\">\n",
+              "  <thead>\n",
+              "    <tr style=\"text-align: right;\">\n",
+              "      <th></th>\n",
+              "      <th>0</th>\n",
+              "    </tr>\n",
+              "  </thead>\n",
+              "  <tbody>\n",
+              "    <tr>\n",
+              "      <th>page_id</th>\n",
+              "      <td>0</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>last_refresh_date</th>\n",
+              "      <td>0</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>page_views_last_30_days</th>\n",
+              "      <td>0</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>engagement_score</th>\n",
+              "      <td>0</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>content_type</th>\n",
+              "      <td>0</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>refresh_priority_score</th>\n",
+              "      <td>0</td>\n",
+              "    </tr>\n",
+              "  </tbody>\n",
+              "</table>\n",
+              "</div><br><label><b>dtype:</b> int64</label>"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 11
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "df.describe()"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 300
+        },
+        "id": "FVDvl1LyAaD_",
+        "outputId": "72ff47ce-bfd4-4523-dd10-71b7d7223057"
+      },
+      "execution_count": 13,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "         last_refresh_date  page_views_last_30_days  engagement_score  \\\n",
+              "count                   10                10.000000         10.000000   \n",
+              "mean   2023-01-13 02:24:00              2283.100000          0.430000   \n",
+              "min    2022-10-10 00:00:00               297.000000          0.170000   \n",
+              "25%    2022-12-18 00:00:00              1242.250000          0.270000   \n",
+              "50%    2023-01-20 00:00:00              1984.000000          0.385000   \n",
+              "75%    2023-02-16 06:00:00              3418.000000          0.510000   \n",
+              "max    2023-04-01 00:00:00              4576.000000          0.870000   \n",
+              "std                    NaN              1381.723115          0.225389   \n",
+              "\n",
+              "       refresh_priority_score  \n",
+              "count               10.000000  \n",
+              "mean                 4.760000  \n",
+              "min                  1.600000  \n",
+              "25%                  3.400000  \n",
+              "50%                  4.700000  \n",
+              "75%                  6.600000  \n",
+              "max                  7.700000  \n",
+              "std                  2.140716  "
+            ],
+            "text/html": [
+              "\n",
+              "  <div id=\"df-54ca66bc-8686-44c9-a3e6-71dad69f1006\" class=\"colab-df-container\">\n",
+              "    <div>\n",
+              "<style scoped>\n",
+              "    .dataframe tbody tr th:only-of-type {\n",
+              "        vertical-align: middle;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe tbody tr th {\n",
+              "        vertical-align: top;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe thead th {\n",
+              "        text-align: right;\n",
+              "    }\n",
+              "</style>\n",
+              "<table border=\"1\" class=\"dataframe\">\n",
+              "  <thead>\n",
+              "    <tr style=\"text-align: right;\">\n",
+              "      <th></th>\n",
+              "      <th>last_refresh_date</th>\n",
+              "      <th>page_views_last_30_days</th>\n",
+              "      <th>engagement_score</th>\n",
+              "      <th>refresh_priority_score</th>\n",
+              "    </tr>\n",
+              "  </thead>\n",
+              "  <tbody>\n",
+              "    <tr>\n",
+              "      <th>count</th>\n",
+              "      <td>10</td>\n",
+              "      <td>10.000000</td>\n",
+              "      <td>10.000000</td>\n",
+              "      <td>10.000000</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>mean</th>\n",
+              "      <td>2023-01-13 02:24:00</td>\n",
+              "      <td>2283.100000</td>\n",
+              "      <td>0.430000</td>\n",
+              "      <td>4.760000</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>min</th>\n",
+              "      <td>2022-10-10 00:00:00</td>\n",
+              "      <td>297.000000</td>\n",
+              "      <td>0.170000</td>\n",
+              "      <td>1.600000</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>25%</th>\n",
+              "      <td>2022-12-18 00:00:00</td>\n",
+              "      <td>1242.250000</td>\n",
+              "      <td>0.270000</td>\n",
+              "      <td>3.400000</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>50%</th>\n",
+              "      <td>2023-01-20 00:00:00</td>\n",
+              "      <td>1984.000000</td>\n",
+              "      <td>0.385000</td>\n",
+              "      <td>4.700000</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>75%</th>\n",
+              "      <td>2023-02-16 06:00:00</td>\n",
+              "      <td>3418.000000</td>\n",
+              "      <td>0.510000</td>\n",
+              "      <td>6.600000</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>max</th>\n",
+              "      <td>2023-04-01 00:00:00</td>\n",
+              "      <td>4576.000000</td>\n",
+              "      <td>0.870000</td>\n",
+              "      <td>7.700000</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>std</th>\n",
+              "      <td>NaN</td>\n",
+              "      <td>1381.723115</td>\n",
+              "      <td>0.225389</td>\n",
+              "      <td>2.140716</td>\n",
+              "    </tr>\n",
+              "  </tbody>\n",
+              "</table>\n",
+              "</div>\n",
+              "    <div class=\"colab-df-buttons\">\n",
+              "\n",
+              "  <div class=\"colab-df-container\">\n",
+              "    <button class=\"colab-df-convert\" onclick=\"convertToInteractive('df-54ca66bc-8686-44c9-a3e6-71dad69f1006')\"\n",
+              "            title=\"Convert this dataframe to an interactive table.\"\n",
+              "            style=\"display:none;\">\n",
+              "\n",
+              "  <svg xmlns=\"http://www.w3.org/2000/svg\" height=\"24px\" viewBox=\"0 -960 960 960\">\n",
+              "    <path d=\"M120-120v-720h720v720H120Zm60-500h600v-160H180v160Zm220 220h160v-160H400v160Zm0 220h160v-160H400v160ZM180-400h160v-160H180v160Zm440 0h160v-160H620v160ZM180-180h160v-160H180v160Zm440 0h160v-160H620v160Z\"/>\n",
+              "  </svg>\n",
+              "    </button>\n",
+              "\n",
+              "  <style>\n",
+              "    .colab-df-container {\n",
+              "      display:flex;\n",
+              "      gap: 12px;\n",
+              "    }\n",
+              "\n",
+              "    .colab-df-convert {\n",
+              "      background-color: #E8F0FE;\n",
+              "      border: none;\n",
+              "      border-radius: 50%;\n",
+              "      cursor: pointer;\n",
+              "      display: none;\n",
+              "      fill: #1967D2;\n",
+              "      height: 32px;\n",
+              "      padding: 0 0 0 0;\n",
+              "      width: 32px;\n",
+              "    }\n",
+              "\n",
+              "    .colab-df-convert:hover {\n",
+              "      background-color: #E2EBFA;\n",
+              "      box-shadow: 0px 1px 2px rgba(60, 64, 67, 0.3), 0px 1px 3px 1px rgba(60, 64, 67, 0.15);\n",
+              "      fill: #174EA6;\n",
+              "    }\n",
+              "\n",
+              "    .colab-df-buttons div {\n",
+              "      margin-bottom: 4px;\n",
+              "    }\n",
+              "\n",
+              "    [theme=dark] .colab-df-convert {\n",
+              "      background-color: #3B4455;\n",
+              "      fill: #D2E3FC;\n",
+              "    }\n",
+              "\n",
+              "    [theme=dark] .colab-df-convert:hover {\n",
+              "      background-color: #434B5C;\n",
+              "      box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);\n",
+              "      filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.3));\n",
+              "      fill: #FFFFFF;\n",
+              "    }\n",
+              "  </style>\n",
+              "\n",
+              "    <script>\n",
+              "      const buttonEl =\n",
+              "        document.querySelector('#df-54ca66bc-8686-44c9-a3e6-71dad69f1006 button.colab-df-convert');\n",
+              "      buttonEl.style.display =\n",
+              "        google.colab.kernel.accessAllowed ? 'block' : 'none';\n",
+              "\n",
+              "      async function convertToInteractive(key) {\n",
+              "        const element = document.querySelector('#df-54ca66bc-8686-44c9-a3e6-71dad69f1006');\n",
+              "        const dataTable =\n",
+              "          await google.colab.kernel.invokeFunction('convertToInteractive',\n",
+              "                                                    [key], {});\n",
+              "        if (!dataTable) return;\n",
+              "\n",
+              "        const docLinkHtml = 'Like what you see? Visit the ' +\n",
+              "          '<a target=\"_blank\" href=https://colab.research.google.com/notebooks/data_table.ipynb>data table notebook</a>'\n",
+              "          + ' to learn more about interactive tables.';\n",
+              "        element.innerHTML = '';\n",
+              "        dataTable['output_type'] = 'display_data';\n",
+              "        await google.colab.output.renderOutput(dataTable, element);\n",
+              "        const docLink = document.createElement('div');\n",
+              "        docLink.innerHTML = docLinkHtml;\n",
+              "        element.appendChild(docLink);\n",
+              "      }\n",
+              "    </script>\n",
+              "  </div>\n",
+              "\n",
+              "\n",
+              "    </div>\n",
+              "  </div>\n"
+            ],
+            "application/vnd.google.colaboratory.intrinsic+json": {
+              "type": "dataframe",
+              "summary": "{\n  \"name\": \"df\",\n  \"rows\": 8,\n  \"fields\": [\n    {\n      \"column\": \"last_refresh_date\",\n      \"properties\": {\n        \"dtype\": \"date\",\n        \"min\": \"1970-01-01 00:00:00.000000010\",\n        \"max\": \"2023-04-01 00:00:00\",\n        \"num_unique_values\": 7,\n        \"samples\": [\n          \"10\",\n          \"2023-01-13 02:24:00\",\n          \"2023-02-16 06:00:00\"\n        ],\n        \"semantic_type\": \"\",\n        \"description\": \"\"\n      }\n    },\n    {\n      \"column\": \"page_views_last_30_days\",\n      \"properties\": {\n        \"dtype\": \"number\",\n        \"std\": 1533.5332102013942,\n        \"min\": 10.0,\n        \"max\": 4576.0,\n        \"num_unique_values\": 8,\n        \"samples\": [\n          2283.1,\n          3418.0,\n          10.0\n        ],\n        \"semantic_type\": \"\",\n        \"description\": \"\"\n      }\n    },\n    {\n      \"column\": \"engagement_score\",\n      \"properties\": {\n        \"dtype\": \"number\",\n        \"std\": 3.398088239457466,\n        \"min\": 0.17,\n        \"max\": 10.0,\n        \"num_unique_values\": 8,\n        \"samples\": [\n          0.43000000000000005,\n          0.51,\n          10.0\n        ],\n        \"semantic_type\": \"\",\n        \"description\": \"\"\n      }\n    },\n    {\n      \"column\": \"refresh_priority_score\",\n      \"properties\": {\n        \"dtype\": \"number\",\n        \"std\": 2.858363455461131,\n        \"min\": 1.6,\n        \"max\": 10.0,\n        \"num_unique_values\": 8,\n        \"samples\": [\n          4.76,\n          6.6,\n          10.0\n        ],\n        \"semantic_type\": \"\",\n        \"description\": \"\"\n      }\n    }\n  ]\n}"
+            }
+          },
+          "metadata": {},
+          "execution_count": 13
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "df[\"refresh_priority_score\"].head()"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 241
+        },
+        "id": "jKjfe6gx_fcw",
+        "outputId": "ffed69bf-0752-4743-b346-94e4a4f4e17a"
+      },
+      "execution_count": 9,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "0    6.7\n",
+              "1    3.3\n",
+              "2    4.8\n",
+              "3    3.7\n",
+              "4    1.6\n",
+              "Name: refresh_priority_score, dtype: float64"
+            ],
+            "text/html": [
+              "<div>\n",
+              "<style scoped>\n",
+              "    .dataframe tbody tr th:only-of-type {\n",
+              "        vertical-align: middle;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe tbody tr th {\n",
+              "        vertical-align: top;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe thead th {\n",
+              "        text-align: right;\n",
+              "    }\n",
+              "</style>\n",
+              "<table border=\"1\" class=\"dataframe\">\n",
+              "  <thead>\n",
+              "    <tr style=\"text-align: right;\">\n",
+              "      <th></th>\n",
+              "      <th>refresh_priority_score</th>\n",
+              "    </tr>\n",
+              "  </thead>\n",
+              "  <tbody>\n",
+              "    <tr>\n",
+              "      <th>0</th>\n",
+              "      <td>6.7</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>1</th>\n",
+              "      <td>3.3</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>2</th>\n",
+              "      <td>4.8</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>3</th>\n",
+              "      <td>3.7</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>4</th>\n",
+              "      <td>1.6</td>\n",
+              "    </tr>\n",
+              "  </tbody>\n",
+              "</table>\n",
+              "</div><br><label><b>dtype:</b> float64</label>"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 9
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## Why ML Beats a Fixed Rule\n",
+        "\n",
+        "A fixed rule such as \"refresh every page after one year\" cannot consider multiple factors like page views, engagement score, and content type.\n",
+        "\n",
+        "Machine learning learns patterns from historical data and combines multiple signals to estimate the refresh priority more accurately than a simple rule."
+      ],
+      "metadata": {
+        "id": "COiuQqAC_stm"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## Action Supported\n",
+        "\n",
+        "The predicted refresh priority score helps the content team identify which webpages should be updated first.\n",
+        "\n",
+        "This improves content quality, user engagement, and search engine performance by focusing effort on the pages that need attention the most."
+      ],
+      "metadata": {
+        "id": "LIy2xPTt_vWX"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## Self-Check\n",
+        "\n",
+        "- Task type identified: ✅\n",
+        "- Target column defined: ✅\n",
+        "- Success metric selected: ✅\n",
+        "- Unit of analysis explained: ✅\n",
+        "- Dataframe displayed: ✅\n",
+        "- Target column shown: ✅\n",
+        "- Explained why ML is better than fixed rules: ✅\n",
+        "- Connected prediction to a real content action: ✅"
+      ],
+      "metadata": {
+        "id": "DPLfE6SZ_xYX"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [],
+      "metadata": {
+        "id": "0yGiAu2J_gtI"
+      },
+      "execution_count": null,
+      "outputs": []
+    }
+  ]
+}

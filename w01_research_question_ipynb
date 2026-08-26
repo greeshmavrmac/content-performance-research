@@ -1,0 +1,179 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": []
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "source": [
+        "# Week 1 Research Question\n"
+      ],
+      "metadata": {
+        "id": "Ys687dCKVkPQ"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## 1. My Lane (or Freestyle) and Why\n",
+        "\n",
+        "I chose the **Content Refresh Prioritization** lane because it focuses on identifying webpages that may need updates based on their search performance and content-related metrics. This topic interests me because improving existing content can help teams make better decisions about where to spend their time and effort.\n",
+        "\n",
+        "I selected this lane because it combines data analysis with practical decision-making. Instead of reviewing every page manually, I want to use data to identify pages that are more likely to benefit from a content refresh. During this internship, I hope to understand which factors are related to declining performance and how machine learning can support this process. My lane choice is provisional, and I may refine it as I learn more from the dataset."
+      ],
+      "metadata": {
+        "id": "zt3bdt60VtTe"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "\n",
+        "\n",
+        "## 2. The Question\n",
+        "\n",
+        "### Search Question\n",
+        "\n",
+        "Which webpages are most likely to benefit from a content refresh based on their search performance and content-related features?\n",
+        "\n",
+        "### Unit of Analysis\n",
+        "\n",
+        "Individual webpages.\n",
+        "\n",
+        "### Output\n",
+        "\n",
+        "A ranked list of webpages that are likely to benefit from a content review.\n",
+        "\n",
+        "### Action\n",
+        "\n",
+        "The content or SEO team can review the highest-ranked pages first and decide whether they should be updated or improved.\n",
+        "\n",
+        "### Cost of a Wrong Recommendation\n",
+        "\n",
+        "If a page is incorrectly recommended for a refresh, time and effort may be spent on a page that does not need changes. If an important page is missed, its performance may continue to decline. Therefore, the recommendations should support human decision-making rather than replace it.\n",
+        "\n",
+        "### Why Data or ML Can Help\n",
+        "\n",
+        "The dataset contains many webpages and several performance-related features. Machine learning can identify useful patterns that may not be obvious through manual analysis and help prioritize pages more efficiently."
+      ],
+      "metadata": {
+        "id": "6oWjmllNVuhn"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## 3. Quick Look at the Data"
+      ],
+      "metadata": {
+        "id": "T7iy1nH1V0uW"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import os\n",
+        "import sys\n",
+        "import subprocess\n",
+        "import pandas as pd\n",
+        "\n",
+        "IN_COLAB = \"google.colab\" in sys.modules\n",
+        "REPO_URL = \"https://github.com/flyrank-bih/flyrank-ml-internship-starter\"\n",
+        "REPO_DIR = \"flyrank-ml-internship-starter\"\n",
+        "\n",
+        "if IN_COLAB:\n",
+        "    if not os.path.isdir(REPO_DIR):\n",
+        "        subprocess.run([\"git\", \"clone\", \"--depth\", \"1\", REPO_URL, REPO_DIR], check=True)\n",
+        "    os.chdir(REPO_DIR)\n",
+        "\n",
+        "df = pd.read_csv(\"data/raw/content_refresh_anonymized.csv\")\n",
+        "\n",
+        "print(\"Total Pages:\", len(df))\n",
+        "print(\"Declining Rate:\", round((df[\"trend_direction\"].str.lower() == \"down\").mean(), 3))\n",
+        "print(\"Average CTR:\", round(df[\"ctr\"].mean(), 3))\n",
+        "print(\"Average Position:\", round(df[\"avg_position\"].mean(), 2))"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "1jtNMHTKiLx3",
+        "outputId": "81efb645-d4b5-4897-e383-cf958e29bc9c"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Total Pages: 30000\n",
+            "Declining Rate: 0.542\n",
+            "Average CTR: 0.511\n",
+            "Average Position: 16.34\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## 3. Quick Look at the Data\n",
+        "\n",
+        "The starter dataset contains **30,000 webpages**. I observed that the declining rate is **0.542**. I also calculated the average CTR as **0.511** and the average search position as **16.34**.\n",
+        "\n",
+        "These values provide a useful overview of the dataset and support my choice of the Content Refresh Prioritization lane. They show that the dataset contains enough information to explore patterns related to declining content and page performance. This project is not only about training a model but also about understanding the data and using it to support better content review decisions."
+      ],
+      "metadata": {
+        "id": "3rtJtx7ri0Ue"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## 4. Careful Words\n",
+        "\n",
+        "The observations in this notebook are based only on the available dataset and should be considered directional rather than definitive. This work does not explain or predict Google's ranking algorithm. The results are intended to support decision-making and should always be reviewed before taking action."
+      ],
+      "metadata": {
+        "id": "WFC2LbSliiwI"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## 5. Self-Check\n",
+        "\n",
+        "- ✅ I selected a provisional lane.\n",
+        "- ✅ I defined my research question.\n",
+        "- ✅ I identified the unit of analysis.\n",
+        "- ✅ I explained the expected output and the action it supports.\n",
+        "- ✅ I described the cost of an incorrect recommendation.\n",
+        "- ✅ I included real numbers from the starter dataset.\n",
+        "- ✅ I used careful language and avoided unsupported claims."
+      ],
+      "metadata": {
+        "id": "xulGCxiWimIm"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [],
+      "metadata": {
+        "id": "j25eBozJicMe"
+      },
+      "execution_count": null,
+      "outputs": []
+    }
+  ]
+}
