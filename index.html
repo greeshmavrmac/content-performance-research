@@ -92,6 +92,24 @@
             margin: 20px 0;
         }
 
+        .figure-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .figure-container img {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #d1d5db;
+            border-radius: 5px;
+        }
+
+        .figure-caption {
+            font-style: italic;
+            color: #6b7280;
+            margin-top: 10px;
+        }
+
         footer {
             text-align: center;
             padding: 30px;
@@ -516,7 +534,11 @@
 
     <h2>9. Figures</h2>
 
-    <p><strong>Figure 1.</strong> Distribution of Content Archetypes.</p>
+    <div class="figure-container">
+        <img src="images/figure1.png" alt="Figure 1: Distribution of Content Archetypes">
+        <p class="figure-caption"><strong>Figure 1.</strong> Distribution of Content Archetypes.</p>
+    </div>
+
     <p><strong>Figure 2.</strong> Performance Comparison Between Content Archetypes.</p>
     <p><strong>Figure 3.</strong> Normalized Performance Comparison.</p>
     <p><strong>Figure 4.</strong> PCA Visualization of Content Archetypes.</p>
