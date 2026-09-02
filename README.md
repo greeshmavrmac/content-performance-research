@@ -36,29 +36,40 @@ The higher-performing archetype showed stronger impressions, clicks, pageviews, 
 ## Project Structure
 
 ```
+content-performance-research/
+│
 ├── README.md                          # This file
+│
 ├── website/                           # Website and publication files
 │   └── index.html                    # Research paper website
+│
 ├── images/                            # Research visualizations
 │   ├── figure1.png                   # Content archetype distribution
 │   ├── figure2.png                   # Performance comparison
 │   ├── figure3.png                   # Normalized performance comparison
 │   ├── figure4.png                   # PCA visualization
 │   └── figure5.png                   # Silhouette-score comparison
+│
 ├── notebooks/                         # Jupyter notebooks organized by week
 │   ├── week01/
 │   │   └── 01_research_question.ipynb
+│   │
 │   ├── week02/
 │   │   ├── 02_ml_task_framing.ipynb
 │   │   └── 02_readable_model.ipynb
+│   │
 │   ├── week03/
 │   │   └── 03_data_contract.ipynb
+│   │
 │   ├── week04/
 │   │   └── 04_baseline_score.ipynb
+│   │
 │   └── discovery/
 │       └── 01_first_look_and_discovery.ipynb
+│
 ├── submissions/                       # Project submissions
 │   └── paper_url.txt                 # Deployed paper URL
+│
 └── work/                              # Work summaries and narratives
     ├── employer_summary.md
     ├── social_summary.md
@@ -69,6 +80,8 @@ The higher-performing archetype showed stronger impressions, clicks, pageviews, 
 
 https://greeshmavrmac.github.io/content-performance-research/
 
+The website displays the complete research findings with interactive visualizations and detailed methodology.
+
 ## Technologies Used
 
 Python, DuckDB, Pandas, NumPy, Scikit-learn, HTML, and CSS.
@@ -76,3 +89,15 @@ Python, DuckDB, Pandas, NumPy, Scikit-learn, HTML, and CSS.
 ## Data Credit
 
 This project uses the FlyRank ML Internship Warehouse dataset. The analysis uses aggregated and pseudonymized content-performance data.
+
+## Repository Organization
+
+This repository has been organized for clarity and maintainability:
+
+- **notebooks/**: All Jupyter notebooks organized by week of work
+- **website/**: GitHub Pages HTML with all figures properly linked
+- **images/**: All PNG visualizations in a dedicated folder
+- **work/**: Summary documents and narratives
+- **submissions/**: Project submission files
+
+All cross-references and paths have been updated to reflect the new structure. The GitHub Pages site serves from `website/index.html` with images correctly referenced from `../images/`.
